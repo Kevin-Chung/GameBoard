@@ -28,7 +28,7 @@ public class GameConfigActivity extends AppCompatActivity {
         Log.d(TAG, "LOADED");
 
         try {
-            Socket socket = IO.socket("http://172.25.252.234:8080");
+            Socket socket = IO.socket("https://gameboard-socketio.herokuapp.com/");
 
             socket.on("broad", new Emitter.Listener() {
                 @Override

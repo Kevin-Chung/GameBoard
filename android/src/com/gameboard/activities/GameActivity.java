@@ -35,7 +35,7 @@ public class GameActivity extends AndroidApplication {
         initialize(game, config);
 
         try {
-            socket = IO.socket("http://172.25.252.234:8080");
+            socket = IO.socket("https://gameboard-socketio.herokuapp.com/");
 
             socket.on("broad", new Emitter.Listener() {
                 @Override

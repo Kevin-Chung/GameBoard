@@ -93,11 +93,12 @@ public class PongGame extends ApplicationAdapter {
 
         Gdx.app.debug("MyTag", "creat my debug message");
 
-        WIDTH = Gdx.graphics.getWidth();
+        WIDTH = Gdx.graphics.getWidth() * 2;
         HEIGHT = Gdx.graphics.getWidth();
 
-        cam = new OrthographicCamera(WIDTH, HEIGHT);
+        cam = new OrthographicCamera(WIDTH / 2, HEIGHT);
         cam.setToOrtho(false);
+
         sr = new ShapeRenderer();
 
         p1 = new Rectangle(30, HEIGHT / 4, playerWidth, playerHeight);
@@ -130,6 +131,26 @@ public class PongGame extends ApplicationAdapter {
             Gdx.app.debug("MyTag", "Pong update");
             pong.x = data.get("x").getAsFloat();
             pong.y = data.get("y").getAsFloat();
+            pongYspeed = data.get("pongYspeed").getAsInt();
+            changePongY = data.get("changePongY").getAsDouble();
+            pongDirection = data.get("pongDirection").getAsDouble();
+            pongUp = data.get("pongUp").getAsBoolean();
+            pongDown = data.get("pongDown").getAsBoolean();
+            pongLeft = data.get("pongLeft").getAsBoolean();
+            pongRight = data.get("pongRight").getAsBoolean();
+        }
+
+        else if (type.equals("player_update")) {
+            boolean hostPlays = data.get("host").getAsBoolean();
+            float newY = data.get("y").getAsFloat();
+
+            if (hostPlays != isHost) {
+                if (hostPlays) {
+                    p1.y = newY;
+                } else {
+                    p2.y = newY;
+                }
+            }
         }
     }
 
@@ -154,27 +175,44 @@ public class PongGame extends ApplicationAdapter {
         sr.end();
 
         if(Gdx.input.getDeltaY() < 0) {
-            p1.y += inputPlayerSpeed * Gdx.graphics.getDeltaTime(); }
+            if (isHost) {
+                p1.y += inputPlayerSpeed * Gdx.graphics.getDeltaTime();
+            } else {
+                p2.y += inputPlayerSpeed * Gdx.graphics.getDeltaTime();
+            }
+
+            sendPlayerDataToServer();
+
+        }
         if(Gdx.input.getDeltaY() > 0) {
-            p1.y -= inputPlayerSpeed * Gdx.graphics.getDeltaTime(); }
+            if (isHost) {
+                p1.y -= inputPlayerSpeed * Gdx.graphics.getDeltaTime();
+            } else {
+                p2.y -= inputPlayerSpeed * Gdx.graphics.getDeltaTime();
+            }
+
+            sendPlayerDataToServer();
+        }
 
         // determine pong's direction and change movement appropriately
+
+        if (pongRight && !pongLeft) {
+            pong.x += pongSpeed * Gdx.graphics.getDeltaTime();
+        } else if (pongLeft && !pongRight) {
+            pong.x -= pongSpeed * Gdx.graphics.getDeltaTime();
+        }
+
+        // change the up/down trajectory of the pong if necessary
+        if (pongUp && !pongDown) {
+            pong.y += pongYspeed * Gdx.graphics.getDeltaTime();
+        } else if (pongDown && !pongUp) {
+            pong.y -= pongYspeed * Gdx.graphics.getDeltaTime();
+        }
 
         if (this.isHost) {
             changePongY = Math.random();
 
-            if (pongRight && !pongLeft) {
-                pong.x += pongSpeed * Gdx.graphics.getDeltaTime();
-            } else if (pongLeft && !pongRight) {
-                pong.x -= pongSpeed * Gdx.graphics.getDeltaTime();
-            }
 
-            // change the up/down trajectory of the pong if necessary
-            if (pongUp && !pongDown) {
-                pong.y += pongYspeed * Gdx.graphics.getDeltaTime();
-            } else if (pongDown && !pongUp) {
-                pong.y -= pongYspeed * Gdx.graphics.getDeltaTime();
-            }
 
             // collision
             if (pong.overlaps(p1)) {
@@ -187,26 +225,52 @@ public class PongGame extends ApplicationAdapter {
                 pongLeft = true;
 
                 changePongY = Math.random();
+                sendPongDataToServer();
             }
 
             // reset gameboard if the pong goes out of the boundaries
             else if (pong.overlaps(leftBound)) {
                 resetBoard();
                 playerTwoScore += 1;
+                sendPongDataToServer();
             } else if (pong.overlaps(rightBound)) {
                 resetBoard();
                 playerOneScore += 1;
+                sendPongDataToServer();
             }
-
-            // Send pong to server
-            JsonObject pongUpdate = new JsonObject();
-            pongUpdate.addProperty("event_type", "pong_update");
-            pongUpdate.addProperty("x", pong.x);
-            pongUpdate.addProperty("y", pong.y);
-
-//            socket.emit("game_update", pongUpdate.toString());
-            listener.sendMessage(pongUpdate.toString());
         }
+    }
+
+    private void sendPongDataToServer() {
+        // Send pong to server
+        JsonObject pongUpdate = new JsonObject();
+        pongUpdate.addProperty("event_type", "pong_update");
+        pongUpdate.addProperty("x", pong.x);
+        pongUpdate.addProperty("y", pong.y);
+        pongUpdate.addProperty("pongYspeed", pongYspeed);
+        pongUpdate.addProperty("changePongY", changePongY);
+        pongUpdate.addProperty("pongDirection", pongDirection);
+        pongUpdate.addProperty("pongUp", pongUp);
+        pongUpdate.addProperty("pongDown", pongDown);
+        pongUpdate.addProperty("pongLeft", pongLeft);
+        pongUpdate.addProperty("pongRight", pongRight);
+
+        listener.sendMessage(pongUpdate.toString());
+    }
+
+    private void sendPlayerDataToServer() {
+        JsonObject playerUpdate = new JsonObject();
+        playerUpdate.addProperty("event_type", "player_update");
+        playerUpdate.addProperty("host", isHost);
+
+        if (isHost) {
+            playerUpdate.addProperty("y", p1.y);
+        } else {
+            playerUpdate.addProperty("y", p2.y);
+        }
+
+
+        listener.sendMessage(playerUpdate.toString());
     }
 
     private void resetBoard() {
@@ -227,11 +291,13 @@ public class PongGame extends ApplicationAdapter {
         if((changePongY > 0.3) && (pong.y > (HEIGHT / 2))) {
             pongUp = false;
             pongDown = true;
+            sendPongDataToServer();
         }
         // if the pong is the bottom half of the board and the trajectory shifts, send it upwards
         else if((changePongY < 0.7) && (pong.y < (HEIGHT / 2))) {
             pongUp = true;
             pongDown = false;
+            sendPongDataToServer();
         }
         // if the trajectory doesn't shift at all, don't change the direction of the pong.
         else {
@@ -242,6 +308,10 @@ public class PongGame extends ApplicationAdapter {
 
     public void setHost(boolean isHost) {
 	    this.isHost = isHost;
+
+        if (!isHost) {
+            cam.position.set(cam.position.x + WIDTH  / 2, cam.position.y, 0);
+        }
     }
 
     public void setOnUpdateListener(OnSendGameMessage.OnSendGameMessageListener listener) {
