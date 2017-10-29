@@ -42,19 +42,16 @@ public class SocketServer extends AsyncTask {
             JSONObject jsonObject;
             while(true) {
                 Log.d("Hacktx2","Trying to read data");
-                jsonObject = new JSONObject(br.readLine().toString());
-                Log.d("HACKTX2","TEST"+jsonObject.toString());
-                Log.d("HACKTX2",jsonObject.getString("test"));
+                Log.d("Hacktx2",br.readLine().toString());
+//                jsonObject = new JSONObject(br.readLine().toString());
+//                Log.d("HACKTX2","TEST"+jsonObject.toString());
+//                Log.d("HACKTX2",jsonObject.getString("test"));
                 // do game logic with json object
                 Thread.sleep(1000);
             }
 
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
