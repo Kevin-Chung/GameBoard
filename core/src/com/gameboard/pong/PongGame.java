@@ -1,18 +1,23 @@
 package com.gameboard.pong;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Rectangle;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import io.socket.client.Socket;
+
+public class PongGame extends ApplicationAdapter {
 
 
-    public class PongGame extends ApplicationAdapter {
+    OnSendGameMessage.OnSendGameMessageListener listener;
     // game's width
     public static int WIDTH;
     // game's height
@@ -26,17 +31,18 @@ import com.badlogic.gdx.math.Rectangle;
     // player 2's rectangle
     Rectangle p2;
     // player's width
-    int playerWidth = 15;
+    int playerWidth = 40;
     // player's height
-    int playerHeight = 100;
+    int playerHeight = 200;
     // speed at which players can move
     int playerSpeed = 300;
+    int inputPlayerSpeed = 1000;
     // speed at which the pong ball moves
     int pongSpeed = 400;
     // default scores
     int playerOneScore, playerTwoScore;
     // the ball
-    Rectangle pong;
+    public Rectangle pong;
     // chance that the trajectory will change
     int pongYspeed = 50;
     // randomly generated number to generate probability of pong's trajectory
@@ -56,10 +62,37 @@ import com.badlogic.gdx.math.Rectangle;
     // right boundary
     Rectangle rightBound;
 
+    Socket socket;
+    Gson gson;
+
+    boolean isHost = false;
+
 
 
 	@Override
 	public void create () {
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
+	    gson = new Gson();
+
+	    // Setup socket
+//        try {
+//            socket = IO.socket("http://172.25.252.234:8080");
+//
+//            // listen events
+//            socket.on("broad", new Emitter.Listener() {
+//                @Override
+//                public void call(Object... args) {
+//
+//            });
+//
+//
+//            socket.connect();
+//        } catch (URISyntaxException e) {
+//            e.printStackTrace();
+//        }
+
+        Gdx.app.debug("MyTag", "creat my debug message");
+
         WIDTH = Gdx.graphics.getWidth();
         HEIGHT = Gdx.graphics.getWidth();
 
@@ -69,7 +102,7 @@ import com.badlogic.gdx.math.Rectangle;
 
         p1 = new Rectangle(30, HEIGHT / 4, playerWidth, playerHeight);
         p2 = new Rectangle(WIDTH - 45, HEIGHT / 4, playerWidth, playerHeight);
-        pong = new Rectangle(WIDTH / 2, HEIGHT / 3, 5, 5);
+        pong = new Rectangle(WIDTH / 2, HEIGHT / 3, 20, 20);
         leftBound = new Rectangle(0, 0, 3, HEIGHT);
         rightBound = new Rectangle(WIDTH, 0, 3, HEIGHT);
 
@@ -87,6 +120,19 @@ import com.badlogic.gdx.math.Rectangle;
 
 	}
 
+	public void sendEvent(String strData) {
+        Gdx.app.debug("MyTag", "my debug message");
+        JsonObject data = new JsonParser().parse(strData).getAsJsonObject();
+        String type = data.get("event_type").getAsString();
+
+        Gdx.app.debug("MyTag", type);
+        if(type.equals("pong_update")) {
+            Gdx.app.debug("MyTag", "Pong update");
+            pong.x = data.get("x").getAsFloat();
+            pong.y = data.get("y").getAsFloat();
+        }
+    }
+
     @Override
     public void dispose () {
         sr.dispose();
@@ -102,67 +148,65 @@ import com.badlogic.gdx.math.Rectangle;
         sr.setProjectionMatrix(cam.combined);
         sr.begin(ShapeRenderer.ShapeType.Filled);
         sr.setColor(Color.WHITE);
-        sr.circle(pong.x, pong.y, 5);
+        sr.circle(pong.x, pong.y, 20);
         sr.rect(p1.x, p1.y, p1.width, p1.height);
         sr.rect(p2.x, p2.y, p2.width, p2.height);
         sr.end();
 
         if(Gdx.input.getDeltaY() < 0) {
-            p1.y += playerSpeed * Gdx.graphics.getDeltaTime(); }
+            p1.y += inputPlayerSpeed * Gdx.graphics.getDeltaTime(); }
         if(Gdx.input.getDeltaY() > 0) {
-            p1.y -= playerSpeed * Gdx.graphics.getDeltaTime(); }
-
-        changePongY = Math.random();
+            p1.y -= inputPlayerSpeed * Gdx.graphics.getDeltaTime(); }
 
         // determine pong's direction and change movement appropriately
-        if(pongRight && !pongLeft)
-        {
-            pong.x += pongSpeed * Gdx.graphics.getDeltaTime();
-        }
-        else if(pongLeft && !pongRight)
-        {
-            pong.x -= pongSpeed * Gdx.graphics.getDeltaTime();
-        }
 
-        // change the up/down trajectory of the pong if necessary
-        if(pongUp && !pongDown)
-        {
-            pong.y += pongYspeed * Gdx.graphics.getDeltaTime();
-        }
-        else if(pongDown && !pongUp)
-        {
-            pong.y -= pongYspeed * Gdx.graphics.getDeltaTime();
-        }
-
-        // collision
-        if(pong.overlaps(p1))
-        {
-            pongRight = true;
-            pongLeft = false;
-
-            checkPongTrajectory();
-        }
-        else if(pong.overlaps(p2))
-        {
-            pongRight = false;
-            pongLeft = true;
-
+        if (this.isHost) {
             changePongY = Math.random();
-        }
 
-        // reset gameboard if the pong goes out of the boundaries
-        else if(pong.overlaps(leftBound))
-        {
-            resetBoard();
-            playerTwoScore += 1;
-        }
+            if (pongRight && !pongLeft) {
+                pong.x += pongSpeed * Gdx.graphics.getDeltaTime();
+            } else if (pongLeft && !pongRight) {
+                pong.x -= pongSpeed * Gdx.graphics.getDeltaTime();
+            }
 
-        else if(pong.overlaps(rightBound))
-        {
-            resetBoard();
-            playerOneScore += 1;
-        }
+            // change the up/down trajectory of the pong if necessary
+            if (pongUp && !pongDown) {
+                pong.y += pongYspeed * Gdx.graphics.getDeltaTime();
+            } else if (pongDown && !pongUp) {
+                pong.y -= pongYspeed * Gdx.graphics.getDeltaTime();
+            }
 
+            // collision
+            if (pong.overlaps(p1)) {
+                pongRight = true;
+                pongLeft = false;
+
+                checkPongTrajectory();
+            } else if (pong.overlaps(p2)) {
+                pongRight = false;
+                pongLeft = true;
+
+                changePongY = Math.random();
+            }
+
+            // reset gameboard if the pong goes out of the boundaries
+            else if (pong.overlaps(leftBound)) {
+                resetBoard();
+                playerTwoScore += 1;
+            } else if (pong.overlaps(rightBound)) {
+                resetBoard();
+                playerOneScore += 1;
+            }
+
+            // Send pong to server
+            JsonObject pongUpdate = new JsonObject();
+            pongUpdate.addProperty("event_type", "pong_update");
+            pongUpdate.addProperty("x", pong.x);
+            pongUpdate.addProperty("y", pong.y);
+
+//            socket.emit("game_update", pongUpdate.toString());
+            listener.sendMessage(pongUpdate.toString());
+        }
     }
 
     private void resetBoard() {
@@ -196,6 +240,13 @@ import com.badlogic.gdx.math.Rectangle;
         }
     }
 
+    public void setHost(boolean isHost) {
+	    this.isHost = isHost;
+    }
+
+    public void setOnUpdateListener(OnSendGameMessage.OnSendGameMessageListener listener) {
+	    this.listener = listener;
+    }
 
 
     @Override
