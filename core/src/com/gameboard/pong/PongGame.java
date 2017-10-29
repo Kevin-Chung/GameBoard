@@ -68,6 +68,8 @@ public class PongGame extends ApplicationAdapter {
     boolean isHost = false;
     int hostDirection;
 
+    boolean isPlayer1 = false;
+
 
 
 	@Override
@@ -159,7 +161,7 @@ public class PongGame extends ApplicationAdapter {
         sr.end();
 
         if(Gdx.input.getDeltaY() < 0) {
-            if (isHost) {
+            if (isPlayer1) {
                 p1.y += inputPlayerSpeed * Gdx.graphics.getDeltaTime();
             } else {
                 p2.y += inputPlayerSpeed * Gdx.graphics.getDeltaTime();
@@ -169,7 +171,7 @@ public class PongGame extends ApplicationAdapter {
 
         }
         if(Gdx.input.getDeltaY() > 0) {
-            if (isHost) {
+            if (isPlayer1) {
                 p1.y -= inputPlayerSpeed * Gdx.graphics.getDeltaTime();
             } else {
                 p2.y -= inputPlayerSpeed * Gdx.graphics.getDeltaTime();
@@ -293,14 +295,25 @@ public class PongGame extends ApplicationAdapter {
 
     public void setHost(boolean isHost) {
 	    this.isHost = isHost;
-
-        if (!isHost) {
-            cam.position.set(cam.position.x + WIDTH  / 2, cam.position.y, 0);
-        }
     }
 
     public void setHostDirection(int hostDirection) {
 	    this.hostDirection = hostDirection;
+        isPlayer1 = true;
+
+	    if (isHost) {
+	        if(hostDirection == 3) {
+	            isPlayer1 = false;
+            }
+        } else {
+	        if(hostDirection == 1) {
+	            isPlayer1 = false;
+            }
+        }
+
+	    if(!isPlayer1) {
+            cam.position.set(cam.position.x + WIDTH  / 2, cam.position.y, 0);
+        }
     }
 
     public void setOnUpdateListener(OnSendGameMessage.OnSendGameMessageListener listener) {
