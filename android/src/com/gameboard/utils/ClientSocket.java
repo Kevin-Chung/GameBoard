@@ -76,7 +76,7 @@ public class ClientSocket extends AsyncTask {
             Log.d("HAcktx2","starting client socket ");
 
             Log.d("hacktx2","trying to connect to "+host+":"+port);
-            socket = new Socket(host,port);
+            if (socket == null) socket = new Socket(host,port);
 
             OutputStream outputStream = socket.getOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
@@ -84,10 +84,9 @@ public class ClientSocket extends AsyncTask {
             PrintWriter pw = new PrintWriter(outputStreamWriter, true);
 
             JSONObject jsonObject;
-            pw.println("{test:test}");
+            pw.println("{\"event_type\":\"pair\"}");
             while(true) {
-                String inputString = br.readLine();
-                Log.d("clientSocket",inputString);
+//                Log.d("clientSocket",inputString);
                 if(outputString != null) {
                     Log.d("Hacktx2", "trying to send data client");
                     JSONObject output = new JSONObject(outputString);
@@ -102,8 +101,8 @@ public class ClientSocket extends AsyncTask {
                     jsonObject = new JSONObject(inputString);
                     Log.d("HACKTX",jsonObject.toString());
                     // don't do something more than once
-                    outputString = "{test:CLient"+testCount+"}";
-                    testCount++;
+//                    outputString = "{test:CLient"+testCount+"}";
+//                    testCount++;
                     final String temp = inputString;
 
                     if(cListener != null ){
@@ -118,6 +117,8 @@ public class ClientSocket extends AsyncTask {
 
                     inputString = null;
                 }
+                String inputString = br.readLine();
+
             }
 
         } catch (IOException e) {

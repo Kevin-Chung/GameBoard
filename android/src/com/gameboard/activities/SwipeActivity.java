@@ -2,7 +2,9 @@ package com.gameboard.activities;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -13,8 +15,20 @@ import android.widget.Toast;
 
 import com.gameboard.R;
 import com.gameboard.gestures.OnSwipeGestureListener;
+import com.gameboard.utils.ClientSocket;
+import com.gameboard.utils.SocketServer;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class SwipeActivity extends AppCompatActivity {
+
+    boolean isHost = false;
+    SocketServer server;
+    ClientSocket client;
+
+    int clientDirection = -1;
+    int serverDirection = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +36,40 @@ public class SwipeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_device_pairing_acitivty);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Intent i = getIntent();
+        isHost = i.getBooleanExtra("IS_HOST", false);
+
+        // More server stuff
+        if (isHost) {
+            this.server = SocketServer.getSocketServer(null, this);
+            if (server.getStatus() != AsyncTask.Status.RUNNING) {
+                server.execute();
+            }
+//            server.setOutputString("{test:test}");
+            server.setCustomObjectListener(new SocketServer.TempListener() {
+                @Override
+                public void messageReceived(String message) {
+                    dataReceived(message);
+                }
+            });
+
+
+        } else {
+            this.client = ClientSocket.getClientSocket(null, this);
+            if (client.getStatus() != AsyncTask.Status.RUNNING) {
+                client.execute();
+            }
+//            client.setOutputString("{test:test}");
+            client.setCustomObjectListener(new ClientSocket.ClientListener() {
+                @Override
+                public void messageReceived(String message) {
+                    dataReceived(message);
+                }
+            });
+
+
+        }
 
         // Fade Arrows
         int arrows[] = {
@@ -49,24 +97,51 @@ public class SwipeActivity extends AppCompatActivity {
         root.setOnTouchListener(new OnSwipeGestureListener(getApplication()) {
             @Override
             public void onSwipeRight() {
-                Toast.makeText(getApplicationContext(), "Swipe right", Toast.LENGTH_SHORT).show();
+                sendSwipeToDevice(1);
             }
 
             @Override
             public void onSwipeLeft() {
-                Toast.makeText(getApplicationContext(), "Swipe Left", Toast.LENGTH_SHORT).show();
+                sendSwipeToDevice(3);
             }
 
             @Override
             public void onSwipeTop() {
-                Toast.makeText(getApplicationContext(), "Swipe Top", Toast.LENGTH_SHORT).show();
+                sendSwipeToDevice(0);
             }
 
             @Override
             public void onSwipeBottom() {
-                Toast.makeText(getApplicationContext(), "Swipe Bottom", Toast.LENGTH_SHORT).show();
+                sendSwipeToDevice(2);
             }
         });
     }
 
+    private void dataReceived(String data) {
+        try {
+            JSONObject json = new JSONObject(data);
+            String type = json.getString("event_type");
+
+            if (type.equals("swipe")) {
+                int d = json.getInt("direction");
+
+                this.clientDirection = d;
+                Toast.makeText(this, "CLIENT DIRECTION " + d, Toast.LENGTH_SHORT).show();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void sendSwipeToDevice(int direction) {
+        Log.d("TEST", "Got swipe " + direction + " " + isHost);
+        if (isHost) {
+            serverDirection = direction;
+            Toast.makeText(this, "SERVER DIRECTION " + direction, Toast.LENGTH_SHORT).show();
+//            server.setOutputString("{\"event_type\": \"swipe\", \"direction\": " + direction + "}");
+        } else {
+            client.setOutputString("{\"event_type\": \"swipe\", \"direction\": " + direction + "}");
+        }
+    }
 }

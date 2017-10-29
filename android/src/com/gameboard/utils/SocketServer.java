@@ -89,9 +89,9 @@ public class SocketServer extends AsyncTask {
 
             //read in json object.
             JSONObject jsonObject;
-            pw.println("{test:test}");
+            pw.println("{\"event_type\":\"pair\"}");
             while(true) {
-                String inputString = br.readLine();
+
                 if (outputString != null) {
 
                     // send data over
@@ -122,12 +122,14 @@ public class SocketServer extends AsyncTask {
 
 
                     // RECEIVED INPUT DO SOMETHING HERE CAMERON
-                    testCount++;
-                    outputString = "{test:server"+testCount +"}";
+//                    testCount++;
+//                    outputString = "{test:server"+testCount +"}";
 
                     // don't do something more than once with the data
                     inputString = null;
                 }
+                Log.d("Hacktx2","blocking for readLine");
+                String inputString = br.readLine();
             }
 
             } catch (IOException e1) {

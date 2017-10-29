@@ -2,11 +2,13 @@ package com.gameboard.activities;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Bundle;
@@ -22,6 +24,7 @@ import com.gameboard.R;
 import com.gameboard.adapters.DeviceAdapter;
 import com.gameboard.models.Device;
 import com.gameboard.utils.WiFiDirectBroadcastReceiver;
+import com.gameboard.utils.WifiDirectListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,7 +126,6 @@ public class DevicePairingActivity extends AppCompatActivity  {
                 Log.d(TAG, "discovery failed for some reason"+i);
             }
         });
-
     }
 
     // both of these are not really needed but I added them anyways bite me
@@ -131,6 +133,14 @@ public class DevicePairingActivity extends AppCompatActivity  {
     protected void onResume() {
         super.onResume();
         broadcastReceiver = new WiFiDirectBroadcastReceiver(mManager, mChannel, this, peerListListener);
+        broadcastReceiver.setConnectionListener(new WifiDirectListener.OnWifiDirectListener() {
+            @Override
+            public void onConnected(WifiP2pInfo info) {
+                Intent i = new Intent(getApplicationContext(), SwipeActivity.class);
+                i.putExtra("IS_HOST", info.isGroupOwner);
+                startActivity(i);
+            }
+        });
         registerReceiver(broadcastReceiver, mIntentFilter);
     }
     @Override

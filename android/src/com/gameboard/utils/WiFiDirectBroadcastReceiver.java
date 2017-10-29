@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -26,6 +27,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver implements Wi
     private WifiP2pManager.Channel mChannel;
     private DevicePairingActivity mActivity;
     private WifiP2pManager.PeerListListener peerListListener;
+    private WifiDirectListener.OnWifiDirectListener connectionListener;
 
     public WiFiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel,
                                        DevicePairingActivity activity, WifiP2pManager.PeerListListener peerListListener) {
@@ -34,6 +36,10 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver implements Wi
         this.mChannel = channel;
         this.mActivity = activity;
         this.peerListListener = peerListListener;
+    }
+
+    public void setConnectionListener(WifiDirectListener.OnWifiDirectListener connectionListener) {
+        this.connectionListener = connectionListener;
     }
 
 
@@ -101,7 +107,6 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver implements Wi
         // not sure what to do with this for now..
         String groupOwnerAddress = info.groupOwnerAddress.getHostAddress();
 
-
         // After the group negotiation, we can determine the group owner
         // (server).
         if (info.groupFormed && info.isGroupOwner) {
@@ -110,14 +115,17 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver implements Wi
             Toast.makeText(mActivity,"I am the owner",Toast.LENGTH_LONG).show();
             // create new server socket
             SocketServer socketServer = SocketServer.getSocketServer(groupOwnerAddress, mActivity);
-            socketServer.setOutputString("{test:test}");
-            socketServer.setCustomObjectListener(new SocketServer.TempListener() {
-                @Override
-                public void messageReceived(String message) {
-                    Toast.makeText(mActivity,message,Toast.LENGTH_SHORT).show();
-                }
-            });
-            socketServer.execute();
+//            socketServer.setOutputString("{test:test}");
+//            socketServer.setCustomObjectListener(new SocketServer.TempListener() {
+//                @Override
+//                public void messageReceived(String message) {
+//                    Toast.makeText(mActivity,message,Toast.LENGTH_SHORT).show();
+//                }
+//            });
+            if (socketServer.getStatus() != AsyncTask.Status.RUNNING) {
+                socketServer.execute();
+            }
+            connectionListener.onConnected(info);
             // I am owner, create a ServerSocket and allow for a person to connect
 
 
@@ -126,14 +134,17 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver implements Wi
             Toast.makeText(mActivity,"I am NOT the owner",Toast.LENGTH_SHORT).show();
             Log.d("HACKTX2","group formed" +groupOwnerAddress);
             ClientSocket clientSocket = ClientSocket.getClientSocket(groupOwnerAddress, mActivity);
-            clientSocket.setOutputString("{test:test}");
-            clientSocket.setCustomObjectListener(new ClientSocket.ClientListener() {
-                @Override
-                public void messageReceived(String message) {
-                    Toast.makeText(mActivity,message,Toast.LENGTH_LONG).show();
-                }
-            });
-            clientSocket.execute();
+//            clientSocket.setOutputString("{test:test}");
+//            clientSocket.setCustomObjectListener(new ClientSocket.ClientListener() {
+//                @Override
+//                public void messageReceived(String message) {
+//                    Toast.makeText(mActivity,message,Toast.LENGTH_LONG).show();
+//                }
+//            });
+            if (clientSocket.getStatus() != AsyncTask.Status.RUNNING) {
+                clientSocket.execute();
+            }
+            connectionListener.onConnected(info);
             // The other device acts as the peer (client). In this case,
             // you'll want to create a peer thread that connects
             // to the group owner.
