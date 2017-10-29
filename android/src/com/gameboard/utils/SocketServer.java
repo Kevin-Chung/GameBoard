@@ -92,7 +92,6 @@ public class SocketServer extends AsyncTask {
             JSONObject jsonObject;
             pw.println("{\"event_type\":\"pair\"}");
             while(true) {
-                Log.d("server","server tick");
                 if (outputString != null) {
 
                     // send data over
