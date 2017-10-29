@@ -38,7 +38,7 @@ public class PongGame extends ApplicationAdapter {
     int playerSpeed = 300;
     int inputPlayerSpeed = 1000;
     // speed at which the pong ball moves
-    int pongSpeed = 400;
+    int pongSpeed = 1000;
     // default scores
     int playerOneScore, playerTwoScore;
     // the ball

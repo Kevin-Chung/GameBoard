@@ -48,76 +48,76 @@ public class SwipeActivity extends AppCompatActivity {
         Intent i = getIntent();
         isHost = i.getBooleanExtra("IS_HOST", false);
 
-        try {
-            socket = IO.socket("https://gameboard-socketio.herokuapp.com/");
-            socket.on("broad", new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    String data = args[0].toString();
-                    Log.d("NEW_SOCKET_EVENT", data);
-
-
-                    try {
-                        JSONObject json = new JSONObject(data);
-                        String type = json.getString("event_type");
-                        if (type.equals("swipe")) {
-                            int d = json.getInt("direction");
-
-                            clientDirection = d;
-                            tryNextPage();
-//                            Toast.makeText(getApplicationContext(), "CLIENT DIRECTION " + d, Toast.LENGTH_SHORT).show();
-                        }
-
-                        else if (type.equals("start_game")) {
-                            int cd = json.getInt("client_direction");
-                            int hd = json.getInt("host_direction");
-
-                            Intent i = new Intent(getApplicationContext(), GameActivity.class);
-                            i.putExtra("IS_HOST", isHost);
-                            i.putExtra("CLIENT_DIRECTION", cd);
-                            i.putExtra("HOST_DIRECTION", hd);
-                            startActivity(i);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Log.d("NEW_SOCKET_EVENT", data);
-                }
-            });
-
-            socket.connect();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            socket = IO.socket("https://gameboard-socketio.herokuapp.com/");
+//            socket.on("broad", new Emitter.Listener() {
+//                @Override
+//                public void call(Object... args) {
+//                    String data = args[0].toString();
+//                    Log.d("NEW_SOCKET_EVENT", data);
+//
+//
+//                    try {
+//                        JSONObject json = new JSONObject(data);
+//                        String type = json.getString("event_type");
+//                        if (type.equals("swipe")) {
+//                            int d = json.getInt("direction");
+//
+//                            clientDirection = d;
+//                            tryNextPage();
+////                            Toast.makeText(getApplicationContext(), "CLIENT DIRECTION " + d, Toast.LENGTH_SHORT).show();
+//                        }
+//
+//                        else if (type.equals("start_game")) {
+//                            int cd = json.getInt("client_direction");
+//                            int hd = json.getInt("host_direction");
+//
+//                            Intent i = new Intent(getApplicationContext(), GameActivity.class);
+//                            i.putExtra("IS_HOST", isHost);
+//                            i.putExtra("CLIENT_DIRECTION", cd);
+//                            i.putExtra("HOST_DIRECTION", hd);
+//                            startActivity(i);
+//                        }
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                    Log.d("NEW_SOCKET_EVENT", data);
+//                }
+//            });
+//
+//            socket.connect();
+//        } catch (URISyntaxException e) {
+//            e.printStackTrace();
+//        }
 
 
         // More server stuff
         if (isHost) {
-//            this.server = SocketServer.getSocketServer(null, this);
-//            if (server.getStatus() != AsyncTask.Status.RUNNING) {
-//                server.execute();
-//            }
-////            server.setOutputString("{test:test}");
-//            server.setCustomObjectListener(new SocketServer.TempListener() {
-//                @Override
-//                public void messageReceived(String message) {
-//                    dataReceived(message);
-//                }
-//            });
+            this.server = SocketServer.getSocketServer(null, this);
+            if (server.getStatus() != AsyncTask.Status.RUNNING) {
+                server.execute();
+            }
+//            server.setOutputString("{test:test}");
+            server.setCustomObjectListener(new SocketServer.TempListener() {
+                @Override
+                public void messageReceived(String message) {
+                    dataReceived(message);
+                }
+            });
 
 
         } else {
-//            this.client = ClientSocket.getClientSocket(null, this);
-//            if (client.getStatus() != AsyncTask.Status.RUNNING) {
-//                client.execute();
-//            }
-////            client.setOutputString("{test:test}");
-//            client.setCustomObjectListener(new ClientSocket.ClientListener() {
-//                @Override
-//                public void messageReceived(String message) {
-//                    dataReceived(message);
-//                }
-//            });
+            this.client = ClientSocket.getClientSocket(null, this);
+            if (client.getStatus() != AsyncTask.Status.RUNNING) {
+                client.execute();
+            }
+//            client.setOutputString("{test:test}");
+            client.setCustomObjectListener(new ClientSocket.ClientListener() {
+                @Override
+                public void messageReceived(String message) {
+                    dataReceived(message);
+                }
+            });
 
 
         }
@@ -172,7 +172,7 @@ public class SwipeActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        if(socket.connected()) socket.disconnect();
+//        if(socket.connected()) socket.disconnect();
     }
 
     private void dataReceived(String data) {
@@ -183,8 +183,20 @@ public class SwipeActivity extends AppCompatActivity {
             if (type.equals("swipe")) {
                 int d = json.getInt("direction");
 
-                this.clientDirection = d;
-                Toast.makeText(this, "CLIENT DIRECTION " + d, Toast.LENGTH_SHORT).show();
+                clientDirection = d;
+                tryNextPage();
+//                            Toast.makeText(getApplicationContext(), "CLIENT DIRECTION " + d, Toast.LENGTH_SHORT).show();
+            }
+
+            else if (type.equals("start_game")) {
+                int cd = json.getInt("client_direction");
+                int hd = json.getInt("host_direction");
+
+                Intent i = new Intent(getApplicationContext(), GameActivity.class);
+                i.putExtra("IS_HOST", isHost);
+                i.putExtra("CLIENT_DIRECTION", cd);
+                i.putExtra("HOST_DIRECTION", hd);
+                startActivity(i);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -194,7 +206,16 @@ public class SwipeActivity extends AppCompatActivity {
 
     private void tryNextPage() {
         if (this.serverDirection != -1 && this.clientDirection != -1) {
-            socket.emit("game_update", "{\"event_type\": \"start_game\", \"host_direction\": " + this.serverDirection + ", \"client_direction\": " + this.clientDirection + "}");
+//            socket.emit("game_update", "{\"event_type\": \"start_game\", \"host_direction\": " + this.serverDirection + ", \"client_direction\": " + this.clientDirection + "}");
+            server.setOutputString("{\"event_type\": \"start_game\", \"host_direction\": " + this.serverDirection + ", \"client_direction\": " + this.clientDirection + "}");
+
+            if (isHost) {
+                Intent i = new Intent(getApplicationContext(), GameActivity.class);
+                i.putExtra("IS_HOST", isHost);
+                i.putExtra("CLIENT_DIRECTION", this.clientDirection);
+                i.putExtra("HOST_DIRECTION", this.serverDirection);
+                startActivity(i);
+            }
         }
     }
 
@@ -206,9 +227,12 @@ public class SwipeActivity extends AppCompatActivity {
 //            Toast.makeText(this, "SERVER DIRECTION " + direction, Toast.LENGTH_SHORT).show();
             tryNextPage();
 //            server.setOutputString("{\"event_type\": \"swipe\", \"direction\": " + direction + "}");
+            Toast.makeText(this, "SERVER DIRECTION " + direction, Toast.LENGTH_SHORT).show();
+            server.setOutputString("{\"event_type\": \"swipe\", \"direction\": " + direction + "}");
         } else {
-//            client.setOutputString("{\"event_type\": \"swipe\", \"direction\": " + direction + "}");
-            socket.emit("game_update", "{\"event_type\": \"swipe\", \"direction\": " + direction + "}");
+
+            client.setOutputString("{\"event_type\": \"swipe\", \"direction\": " + direction + "}");
+//            socket.emit("game_update", "{\"event_type\": \"swipe\", \"direction\": " + direction + "}");
         }
     }
 }
