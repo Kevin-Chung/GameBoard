@@ -95,7 +95,7 @@ public class ClientSocket extends AsyncTask {
                     JSONObject output = new JSONObject(outputString);
 
                     pw.println(output);
-                    Thread.sleep(3000);
+                    Thread.sleep(1000);
                     // don't do something more than once
                     outputString = null;
                 }
