@@ -28,6 +28,7 @@ public class GameActivity extends AndroidApplication {
 
         Intent i = getIntent();
         final boolean isHost = i.getBooleanExtra("IS_HOST", false);
+        final int hostDirection = i.getIntExtra("HOST_DIRECTION", 3);
 
         final PongGame game = new PongGame();
 
@@ -55,6 +56,7 @@ public class GameActivity extends AndroidApplication {
             @Override
             public void run() {
                 game.setHost(isHost);
+                game.setHostDirection(hostDirection);
 
                 game.setOnUpdateListener(new OnSendGameMessage.OnSendGameMessageListener() {
                     @Override

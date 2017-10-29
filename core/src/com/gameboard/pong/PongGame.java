@@ -66,6 +66,7 @@ public class PongGame extends ApplicationAdapter {
     Gson gson;
 
     boolean isHost = false;
+    int hostDirection;
 
 
 
@@ -286,6 +287,7 @@ public class PongGame extends ApplicationAdapter {
         else {
             pongUp = false;
             pongDown = false;
+            sendPongDataToServer();
         }
     }
 
@@ -295,6 +297,10 @@ public class PongGame extends ApplicationAdapter {
         if (!isHost) {
             cam.position.set(cam.position.x + WIDTH  / 2, cam.position.y, 0);
         }
+    }
+
+    public void setHostDirection(int hostDirection) {
+	    this.hostDirection = hostDirection;
     }
 
     public void setOnUpdateListener(OnSendGameMessage.OnSendGameMessageListener listener) {

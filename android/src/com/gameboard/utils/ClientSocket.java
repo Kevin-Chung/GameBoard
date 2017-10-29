@@ -89,7 +89,7 @@ public class ClientSocket extends AsyncTask {
             pw.println("{\"event_type\":\"pair\"}");
             while(true) {
 //                Log.d("clientSocket",inputString);
-                Log.d("server","server tick");
+//                Log.d("server","server tick");
                 if(outputString != null) {
                     Log.d("Hacktx2", "trying to send data client");
                     JSONObject output = new JSONObject(outputString);
