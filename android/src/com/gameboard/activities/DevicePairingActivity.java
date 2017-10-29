@@ -32,7 +32,6 @@ public class DevicePairingActivity extends AppCompatActivity  {
     // broadcastreceiver will receive and notify activity of events
     private WifiP2pManager mManager;
     private WifiP2pManager.Channel mChannel;
-    private BroadcastReceiver mReceiver;
 
     // peer listener, this is used to discover peers
     private PeerListListener myPeerListListener;
@@ -70,7 +69,7 @@ public class DevicePairingActivity extends AppCompatActivity  {
         // Emulators suck
         if (mManager == null) return;
         mChannel = mManager.initialize(this, getMainLooper(), null);
-        mReceiver = new WiFiDirectBroadcastReceiver(mManager, mChannel, this, peerListListener);
+
 
         mIntentFilter = new IntentFilter();
         // wifi p2p state changed
@@ -85,6 +84,8 @@ public class DevicePairingActivity extends AppCompatActivity  {
         // create wifi p2p manager and initialize a channel
         mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         mChannel = mManager.initialize(this, getMainLooper(), null);
+
+
 
         // set device adapter
         deviceAdapter = new DeviceAdapter(deviceList,context);
@@ -110,6 +111,7 @@ public class DevicePairingActivity extends AppCompatActivity  {
             @Override
             public void onSuccess() {
                 /// don't need anything here...
+                Log.d("HackTX","Discovering peers");
             }
 
             @Override
@@ -131,11 +133,12 @@ public class DevicePairingActivity extends AppCompatActivity  {
     protected void onPause() {
         super.onPause();
         try{
-            if (mReceiver != null) {
-                unregisterReceiver(mReceiver);
+            if (broadcastReceiver != null) {
+                unregisterReceiver(broadcastReceiver);
             }
         }catch(Exception e){
             Log.d("HACKTX","EXCEPTION HAS OCCURED WHILE TRYING TO UNREGISTER");
+            Log.d("hacktx", e.getLocalizedMessage());
         }
     }
 

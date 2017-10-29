@@ -21,10 +21,16 @@ import java.net.Socket;
 
 public class SocketServer extends AsyncTask {
 
-    private Context context;
+    private static SocketServer socketServer;
 
-    public SocketServer(Context context){
-        this.context = context;
+    private SocketServer(){
+    }
+
+    public static SocketServer getSocketServer() {
+        if(socketServer == null ){
+            socketServer = new SocketServer();
+        }
+        return socketServer;
     }
 
     @Override
@@ -42,11 +48,18 @@ public class SocketServer extends AsyncTask {
             JSONObject jsonObject;
             while(true) {
                 Log.d("Hacktx2","Trying to read data");
-                jsonObject = new JSONObject(br.readLine().toString());
-                Log.d("HACKTX2","TEST"+jsonObject.toString());
-                Log.d("HACKTX2",jsonObject.getString("test"));
-                // do game logic with json object
-                Thread.sleep(1000);
+
+                String temp = br.readLine();
+                if(temp==null){
+                    Thread.sleep(2500);
+                }else {
+
+                    jsonObject = new JSONObject(temp);
+                    Log.d("HACKTX2", "TEST" + jsonObject.toString());
+                    Log.d("HACKTX2", jsonObject.getString("test"));
+                    // do game logic with json object
+                    Thread.sleep(2500);
+                }
             }
 
 

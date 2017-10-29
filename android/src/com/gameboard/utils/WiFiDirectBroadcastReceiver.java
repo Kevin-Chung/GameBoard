@@ -11,6 +11,7 @@ import android.util.Log;
 import com.gameboard.activities.DevicePairingActivity;
 
 import java.net.InetAddress;
+import java.net.ServerSocket;
 
 
 /**
@@ -37,7 +38,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver implements Wi
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-
+        Log.d("onreceive","in onreceive");
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
             Log.d("HACKTX","WIFI P2P STATE CHANGED");
 
@@ -102,13 +103,16 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver implements Wi
         // (server).
         if (info.groupFormed && info.isGroupOwner) {
             Log.d("HACKTX2","I'm owner");
-            new SocketServer(mActivity).execute();
+
+
+            // create new server socket
+            SocketServer socketServer = SocketServer.getSocketServer();
             // I am owner, create a ServerSocket and allow for a person to connect
 
 
         } else if (info.groupFormed) {
             Log.d("HACKTX2","group formed" +groupOwnerAddress);
-            new ClientSocket(groupOwnerAddress).execute();
+            ClientSocket clientSocket = ClientSocket.getClientSocket(groupOwnerAddress);
             // The other device acts as the peer (client). In this case,
             // you'll want to create a peer thread that connects
             // to the group owner.
