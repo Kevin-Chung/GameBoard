@@ -5,4 +5,7 @@ package com.gameboard.pong;
  */
 
 public class OnSendGameMessage {
+    public interface OnSendGameMessageListener {
+        void sendMessage(String data);
+    }
 }

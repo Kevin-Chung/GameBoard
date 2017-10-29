@@ -25,18 +25,26 @@ public class MainActivity extends AppCompatActivity {
         // Open screens
         ArrayList<Pair<Integer, Class<?>>> buttons = new ArrayList<>();
         buttons.add(new Pair<Integer, Class<?>>(R.id.button_open_game, GameActivity.class));
-        buttons.add(new Pair<Integer, Class<?>>(R.id.button_open_pariring, DevicePairingActivity.class));
+        buttons.add(new Pair<Integer, Class<?>>(R.id.button_open_host, GameActivity.class));
+        buttons.add(new Pair<Integer, Class<?>>(R.id.button_open_join, DevicePairingActivity.class));
         buttons.add(new Pair<Integer, Class<?>>(R.id.button_open_swipe, SwipeActivity.class));
         buttons.add(new Pair<Integer, Class<?>>(R.id.button_open_config, GameConfigActivity.class));
 
 
         for (Pair t : buttons) {
-            Button b = findViewById((int) t.first);
+            final int id = (int) t.first;
+            Button b = findViewById(id);
             final Class<?> dest = (Class<?>) t.second;
+
             b.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent i = new Intent(getApplicationContext(), dest);
+
+                    if (id == R.id.button_open_host) {
+                        i.putExtra("IS_HOST", true);
+                    }
+
                     startActivity(i);
                 }
             });
