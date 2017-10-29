@@ -8,7 +8,7 @@ import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
 
-import com.gameboard.DevicePairingActivity;
+import com.gameboard.activities.DevicePairingActivity;
 
 
 /**

@@ -1,10 +1,10 @@
-package com.gameboard;
+package com.gameboard.activities;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
+import com.gameboard.pong.PongGame;
 
 public class GameActivity extends AndroidApplication {
 
@@ -13,7 +13,7 @@ public class GameActivity extends AndroidApplication {
         super.onCreate(savedInstanceState);
 
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-        initialize(new MyGdxGame(), config);
+        initialize(new PongGame(), config);
     }
 
 }

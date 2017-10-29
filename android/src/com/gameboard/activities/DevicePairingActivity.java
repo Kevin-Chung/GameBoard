@@ -1,4 +1,4 @@
-package com.gameboard;
+package com.gameboard.activities;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.gameboard.R;
 import com.gameboard.adapters.DeviceAdapter;
 import com.gameboard.models.Device;
 import com.gameboard.utils.WiFiDirectBroadcastReceiver;

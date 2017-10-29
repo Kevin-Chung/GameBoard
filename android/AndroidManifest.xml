@@ -33,13 +33,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".GameConfigActivity" />
+        <activity android:name=".activities.GameConfigActivity" />
         <activity
-            android:name=".GameActivity"
+            android:name=".activities.GameActivity"
             android:label="@string/title_activity_game"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -49,11 +49,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DevicePairingActivity"
+            android:name=".activities.DevicePairingActivity"
             android:label="@string/title_activity_device_pairing_acitivty"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
-            android:name=".SwipeActivity"
+            android:name=".activities.SwipeActivity"
             android:label="@string/title_activity_device_pairing_acitivty"
             android:theme="@style/AppTheme.NoActionBar"/>
 

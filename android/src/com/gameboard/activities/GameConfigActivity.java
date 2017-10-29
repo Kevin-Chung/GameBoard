@@ -1,7 +1,9 @@
-package com.gameboard;
+package com.gameboard.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+
+import com.gameboard.R;
 
 public class GameConfigActivity extends AppCompatActivity {
 
