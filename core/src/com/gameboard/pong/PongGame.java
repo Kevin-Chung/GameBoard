@@ -74,23 +74,6 @@ public class PongGame extends ApplicationAdapter {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
 	    gson = new Gson();
 
-	    // Setup socket
-//        try {
-//            socket = IO.socket("http://172.25.252.234:8080");
-//
-//            // listen events
-//            socket.on("broad", new Emitter.Listener() {
-//                @Override
-//                public void call(Object... args) {
-//
-//            });
-//
-//
-//            socket.connect();
-//        } catch (URISyntaxException e) {
-//            e.printStackTrace();
-//        }
-
         Gdx.app.debug("MyTag", "creat my debug message");
 
         WIDTH = Gdx.graphics.getWidth() * 2;
