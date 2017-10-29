@@ -27,8 +27,6 @@ public class MainActivity extends AppCompatActivity {
         buttons.add(new Pair<Integer, Class<?>>(R.id.button_open_game, GameActivity.class));
         buttons.add(new Pair<Integer, Class<?>>(R.id.button_open_host, GameActivity.class));
         buttons.add(new Pair<Integer, Class<?>>(R.id.button_open_join, DevicePairingActivity.class));
-        buttons.add(new Pair<Integer, Class<?>>(R.id.button_open_swipe, SwipeActivity.class));
-        buttons.add(new Pair<Integer, Class<?>>(R.id.button_open_config, GameConfigActivity.class));
 
 
         for (Pair t : buttons) {

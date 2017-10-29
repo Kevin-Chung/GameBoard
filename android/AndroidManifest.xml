@@ -54,7 +54,7 @@
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activities.SwipeActivity"
-            android:label="@string/title_activity_device_pairing_acitivty"
+            android:label="Configure the GameBoard"
             android:theme="@style/AppTheme.NoActionBar"/>
 
     </application>

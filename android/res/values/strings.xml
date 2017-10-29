@@ -2,5 +2,5 @@
     <string name="app_name">GameBoard</string>
     <string name="title_activity_game">GameActivity</string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="title_activity_device_pairing_acitivty">DevicePairingAcitivty</string>
+    <string name="title_activity_device_pairing_acitivty">Pair with a device</string>
 </resources>

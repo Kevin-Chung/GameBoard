@@ -10,17 +10,16 @@
         android:id="@+id/device_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textColor="#333"
+        android:textSize="20sp"
         android:text="device_name" />
 
     <TextView
         android:id="@+id/device_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/device_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:textColor="#333"
+        android:textSize="18sp"
         android:text="TextView" />
 </LinearLayout>
