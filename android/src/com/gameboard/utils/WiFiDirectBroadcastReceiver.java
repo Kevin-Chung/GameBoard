@@ -10,6 +10,8 @@ import android.util.Log;
 
 import com.gameboard.activities.DevicePairingActivity;
 
+import java.net.InetAddress;
+
 
 /**
  * A BroadcastReceiver that notifies of important Wi-Fi p2p events.
@@ -67,16 +69,14 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver implements Wi
             NetworkInfo networkInfo = (NetworkInfo) intent
                     .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
 
+
+
             if (networkInfo.isConnected()) {
                 Log.d("HACKTX2","WE ARE CONNECTED");
                 // We are connected with the other device, request connection
                 // info to find group owner IP
 
                 mManager.requestConnectionInfo(mChannel, this);
-
-
-
-
             }
 
 
@@ -95,19 +95,20 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver implements Wi
 
         // InetAddress from WifiP2pInfo struct.
         // not sure what to do with this for now..
-//        InetAddress groupOwnerAddress = info.groupOwnerAddress.getHostAddress();
+        String groupOwnerAddress = info.groupOwnerAddress.getHostAddress();
 
 
         // After the group negotiation, we can determine the group owner
         // (server).
         if (info.groupFormed && info.isGroupOwner) {
             Log.d("HACKTX2","I'm owner");
-
+            new SocketServer(mActivity).execute();
             // I am owner, create a ServerSocket and allow for a person to connect
 
 
         } else if (info.groupFormed) {
-            Log.d("HACKTX2","group formed");
+            Log.d("HACKTX2","group formed" +groupOwnerAddress);
+            new ClientSocket(groupOwnerAddress).execute();
             // The other device acts as the peer (client). In this case,
             // you'll want to create a peer thread that connects
             // to the group owner.
