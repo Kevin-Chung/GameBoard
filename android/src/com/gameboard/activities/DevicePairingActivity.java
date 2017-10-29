@@ -102,7 +102,7 @@ public class DevicePairingActivity extends AppCompatActivity  {
                 TextView tvAddress = view.findViewById(R.id.device_address);
                 
                 String deviceName = tvName.getText().toString();
-                String deviceAddress = tvName.getText().toString();
+                String deviceAddress = tvAddress.getText().toString();
 
                 connect(deviceAddress);
 
@@ -166,6 +166,7 @@ public class DevicePairingActivity extends AppCompatActivity  {
             public void onFailure(int reason) {
                 Toast.makeText(DevicePairingActivity.this, "Connect failed. Retry.",
                         Toast.LENGTH_SHORT).show();
+                Log.d(TAG,"failed"+reason);
             }
         });
     }

@@ -109,16 +109,31 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver implements Wi
 
             Toast.makeText(mActivity,"I am the owner",Toast.LENGTH_LONG).show();
             // create new server socket
-            SocketServer socketServer = SocketServer.getSocketServer();
+            SocketServer socketServer = SocketServer.getSocketServer(groupOwnerAddress, mActivity);
+            socketServer.setOutputString("{test:test}");
+            socketServer.setCustomObjectListener(new SocketServer.TempListener() {
+                @Override
+                public void messageReceived(String message) {
+                    Toast.makeText(mActivity,message,Toast.LENGTH_SHORT).show();
+                }
+            });
+            socketServer.execute();
             // I am owner, create a ServerSocket and allow for a person to connect
 
 
         } else if (info.groupFormed) {
 
-            Toast.makeText(mActivity,"I am NOT the owner",Toast.LENGTH_LONG).show();
+            Toast.makeText(mActivity,"I am NOT the owner",Toast.LENGTH_SHORT).show();
             Log.d("HACKTX2","group formed" +groupOwnerAddress);
-            ClientSocket clientSocket = ClientSocket.getClientSocket(groupOwnerAddress);
-
+            ClientSocket clientSocket = ClientSocket.getClientSocket(groupOwnerAddress, mActivity);
+            clientSocket.setOutputString("{test:test}");
+            clientSocket.setCustomObjectListener(new ClientSocket.ClientListener() {
+                @Override
+                public void messageReceived(String message) {
+                    Toast.makeText(mActivity,message,Toast.LENGTH_LONG).show();
+                }
+            });
+            clientSocket.execute();
             // The other device acts as the peer (client). In this case,
             // you'll want to create a peer thread that connects
             // to the group owner.
