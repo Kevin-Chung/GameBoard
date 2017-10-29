@@ -47,8 +47,8 @@ public class SocketServer extends AsyncTask {
             //read in json object.
             JSONObject jsonObject;
             while(true) {
-                Log.d("Hacktx2","Trying to read data");
 
+                Log.d("Hacktx2","Trying to read data");
                 String temp = br.readLine();
                 if(temp==null){
                     Thread.sleep(2500);
@@ -60,14 +60,11 @@ public class SocketServer extends AsyncTask {
                     // do game logic with json object
                     Thread.sleep(2500);
                 }
+
             }
 
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

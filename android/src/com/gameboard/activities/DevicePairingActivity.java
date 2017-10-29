@@ -28,6 +28,8 @@ import java.util.List;
 
 public class DevicePairingActivity extends AppCompatActivity  {
 
+    public static String TAG = "DEVICE_PAIRING";
+
     // set up variables. wifi p2p manager is overall manager, channel is used to connect to p2p p2p framework
     // broadcastreceiver will receive and notify activity of events
     private WifiP2pManager mManager;
@@ -96,10 +98,11 @@ public class DevicePairingActivity extends AppCompatActivity  {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                TextView tv = (TextView) findViewById(R.id.device_name);
-                String deviceName = tv.getText().toString();
-                tv = (TextView) findViewById(R.id.device_address);
-                String deviceAddress = tv.getText().toString();
+                TextView tvName = view.findViewById(R.id.device_name);
+                TextView tvAddress = view.findViewById(R.id.device_address);
+                
+                String deviceName = tvName.getText().toString();
+                String deviceAddress = tvName.getText().toString();
 
                 connect(deviceAddress);
 
@@ -110,13 +113,14 @@ public class DevicePairingActivity extends AppCompatActivity  {
         mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
+                Log.d(TAG, "Discovering peers...");
                 /// don't need anything here...
                 Log.d("HackTX","Discovering peers");
             }
 
             @Override
             public void onFailure(int i) {
-                Log.d("HACKTX", "discovery failed for some reason"+i);
+                Log.d(TAG, "discovery failed for some reason"+i);
             }
         });
 
@@ -139,6 +143,7 @@ public class DevicePairingActivity extends AppCompatActivity  {
         }catch(Exception e){
             Log.d("HACKTX","EXCEPTION HAS OCCURED WHILE TRYING TO UNREGISTER");
             Log.d("hacktx", e.getLocalizedMessage());
+
         }
     }
 
@@ -147,13 +152,13 @@ public class DevicePairingActivity extends AppCompatActivity  {
         config.deviceAddress = deviceAddress;
         config.wps.setup = WpsInfo.PBC;
 
-        Log.d("HACKTX2","Attempting to connect to device");
+        Log.d(TAG,"Attempting to connect to device");
 
         mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
 
             @Override
             public void onSuccess() {
-                Log.d("HACKTX2","connection initiated");
+                Log.d(TAG,"connection initiated");
                 // WiFiDirectBroadcastReceiver will notify us. Ignore for now.
             }
 
@@ -161,6 +166,23 @@ public class DevicePairingActivity extends AppCompatActivity  {
             public void onFailure(int reason) {
                 Toast.makeText(DevicePairingActivity.this, "Connect failed. Retry.",
                         Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    void cancelConnections(final String deviceAddress) {
+        WifiP2pConfig config = new WifiP2pConfig();
+        config.deviceAddress = deviceAddress;
+        config.wps.setup = WpsInfo.PBC;
+        mManager.cancelConnect(mChannel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Log.d(TAG, "Connection killed to " + deviceAddress);
+            }
+
+            @Override
+            public void onFailure(int i) {
+
             }
         });
     }
@@ -178,25 +200,18 @@ public class DevicePairingActivity extends AppCompatActivity  {
 
             // Perform any other updates needed based on the new list of
             // peers connected to the Wi-Fi P2P network.
-            Log.d("HACKTX","PEER LIST HAS BEEN UPDATED!");
             for(int i = 0 ; i < peerList.size(); i++){
                 WifiP2pDevice tempDevice = peerList.get(i);
                 Device device = new Device(tempDevice.deviceName,tempDevice.deviceAddress);
                 deviceList.add(device);
-
             }
 
-            if(deviceList.size() >0 ){
+            if(deviceList.size() > 0){
                 deviceAdapter.notifyDataSetChanged();
             }
 
-            Log.d("HACKTX","PRINTING DEVICE LIST");
-            for(Device device : deviceList){
-                Log.d("HACKTX",device.toString());
-            }
-
             if (peerList.size() == 0) {
-                Log.d("HACKTX", "No devices found");
+                Log.d(TAG, "No devices found");
                 return;
             }
         }

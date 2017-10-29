@@ -52,6 +52,7 @@ public class DeviceAdapter extends BaseAdapter {
         TextView device_name = (TextView) rowView.findViewById(R.id.device_name);
         TextView device_address = (TextView) rowView.findViewById(R.id.device_address);
 
+
         device_name.setText(device.getDeviceName());
         device_address.setText(device.getDeviceAddress());
 
