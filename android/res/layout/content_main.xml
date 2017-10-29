@@ -8,34 +8,38 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.gameboard.activities.MainActivity"
     tools:showIn="@layout/activity_main">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+        <Button
+            android:id="@+id/button_open_join"
+            android:layout_width="200dp"
+            android:layout_height="75dp"
+            android:layout_gravity="center"
+            android:text="Join a game"
+            android:layout_margin="20dp"
+            android:drawableLeft="@drawable/ic_videogame_asset_black_24dp"/>
 
-    <Button
-        android:id="@+id/button_open_join"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Join a game" />
+        <Button
+            android:id="@+id/button_open_host"
+            android:layout_width="200dp"
+            android:layout_height="75dp"
+            android:layout_gravity="center"
+            android:text="LeaderBoard"
+            android:layout_margin="20dp"
+            android:drawableLeft="@drawable/ic_trophy_variant"/>
 
-    <Button
-        android:id="@+id/button_open_host"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Host a game" />
+        <Button
+            android:id="@+id/button_open_game"
+            android:text="Settings"
+            android:layout_width="200dp"
+            android:layout_height="75dp"
+            android:layout_gravity="center"
+            android:layout_margin="20dp"
+            android:drawableLeft="@drawable/ic_settings_black_24dp"/>
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/button_open_game"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Open Game" />
 
-    <Button
-        android:id="@+id/button_open_config"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Open Game Config" />
-
-    <Button
-        android:id="@+id/button_open_swipe"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Open Swipe Config" />
 </LinearLayout>
