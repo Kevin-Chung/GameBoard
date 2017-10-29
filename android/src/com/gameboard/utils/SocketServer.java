@@ -81,7 +81,8 @@ public class SocketServer extends AsyncTask {
             Log.d("hacktx2","IP ADDRESSS"+serverSocket.getInetAddress());
 
             // get input and output streams / reader / writer
-            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            InputStreamReader ir = new InputStreamReader(socket.getInputStream());
+            BufferedReader br = new BufferedReader(ir);
 
             OutputStream outputStream = socket.getOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
@@ -91,7 +92,7 @@ public class SocketServer extends AsyncTask {
             JSONObject jsonObject;
             pw.println("{\"event_type\":\"pair\"}");
             while(true) {
-
+                Log.d("server","server tick");
                 if (outputString != null) {
 
                     // send data over
@@ -128,8 +129,13 @@ public class SocketServer extends AsyncTask {
                     // don't do something more than once with the data
                     inputString = null;
                 }
-                Log.d("Hacktx2","blocking for readLine");
-                String inputString = br.readLine();
+
+                InputStream ira = socket.getInputStream();
+                if(ira.available() >0 ){
+                    Log.d("hacktx","reading");
+                    inputString = br.readLine();
+                }
+
             }
 
             } catch (IOException e1) {

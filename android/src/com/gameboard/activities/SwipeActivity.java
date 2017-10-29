@@ -139,7 +139,7 @@ public class SwipeActivity extends AppCompatActivity {
         if (isHost) {
             serverDirection = direction;
             Toast.makeText(this, "SERVER DIRECTION " + direction, Toast.LENGTH_SHORT).show();
-//            server.setOutputString("{\"event_type\": \"swipe\", \"direction\": " + direction + "}");
+            server.setOutputString("{\"event_type\": \"swipe\", \"direction\": " + direction + "}");
         } else {
             client.setOutputString("{\"event_type\": \"swipe\", \"direction\": " + direction + "}");
         }
